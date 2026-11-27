@@ -679,7 +679,10 @@ edm4hep::TrackCollection ConformalTracking::operator()(
 
     // // If the track is too short (usually less than 7 hits correspond to a vertex track)
     // // the fit is tried using the inverted direction
-    if (int(track.getTrackerHits().size()) < m_maxHitsInvFit || fitError != 0) {
+    // The inverted fit is kept only if it has more hits, which is not possible if the track already has all its hits
+    // (also when the fit failed after adding them): in this case it is skipped
+    const bool hitsRejected = track.getTrackerHits().size() < trackHits.size();
+    if (hitsRejected && (int(track.getTrackerHits().size()) < m_maxHitsInvFit || fitError != 0)) {
       auto marlinTrack_inv = GaudiDDKalTestTrack(this, const_cast<GaudiDDKalTest*>(&m_ddkaltest));
       edm4hep::MutableTrack track_inv;
 
